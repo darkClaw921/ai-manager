@@ -1,0 +1,56 @@
+# Development overrides (auto-loaded by docker compose)
+# Hot-reload для всех сервисов: backend, admin, widget
+
+services:
+  api:
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/alembic:/app/alembic
+    environment:
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  worker:
+    volumes:
+      - ./backend/app:/app/app
+    environment:
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+    command: celery -A app.tasks.celery_app worker --loglevel=debug
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://api:8000
+    volumes:
+      - ./admin/src:/app/src
+      - ./admin/index.html:/app/index.html
+      - ./admin/vite.config.ts:/app/vite.config.ts
+      - ./admin/tsconfig.json:/app/tsconfig.json
+      - ./admin/tsconfig.app.json:/app/tsconfig.app.json
+    command: npx vite --host 0.0.0.0 --port 3000
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/ || exit 1"]
+
+  widget:
+    build:
+      context: ./widget
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./widget/src:/app/src
+      - ./widget/index.html:/app/index.html
+      - ./widget/embed.js:/app/embed.js
+      - ./widget/vite.config.ts:/app/vite.config.ts
+      - ./widget/tsconfig.json:/app/tsconfig.json
+    command: npx vite --host 0.0.0.0 --port 3001
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/ || exit 1"]

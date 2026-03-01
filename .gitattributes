@@ -1,0 +1,9 @@
+
+# Use bd merge for beads JSONL files
+.beads/issues.jsonl merge=beads
+__pycache__
+.venv
+.env
+.beads
+.claude
+AGe

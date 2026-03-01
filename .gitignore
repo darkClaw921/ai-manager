@@ -1,0 +1,12 @@
+
+
+__pycache__
+.venv
+.env
+.beads
+.claude
+AGENTS.md
+node_modules
+TODO.md
+dist/
+CLAUDE.md
