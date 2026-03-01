@@ -16,6 +16,9 @@ COPY alembic.ini .
 COPY alembic/ alembic/
 COPY app/ app/
 
+# Install CPU-only PyTorch first (saves ~3GB by excluding NVIDIA CUDA packages)
+RUN uv pip install --system torch --index-url https://download.pytorch.org/whl/cpu
+
 # Install dependencies (non-editable to avoid hatchling issues in container)
 RUN uv pip install --system .
 
